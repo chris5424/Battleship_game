@@ -13,7 +13,12 @@ namespace Battleship
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            Game game = new Game();
+            game.InitGame();
+            game.PlaceShipsRandomOnBoard();
+            //game.PlaceShipsRandomOnBoard();
+            //CreateHostBuilder(args).Build().Run();
+            //Console.WriteLine("test");
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -22,5 +27,7 @@ namespace Battleship
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
+       
     }
 }
