@@ -35,6 +35,9 @@ namespace Battleship
             ShipsToPlace.Add(new Ship { Size = 3, Name = "Cruiser" });
             ShipsToPlace.Add(new Ship { Size = 3, Name = "Submarine" });
             ShipsToPlace.Add(new Ship { Size = 2, Name = "Destroyer" });
+           
+            
+            
         }
 
         private bool CheckOccupancy(int startRow, int startColumn, bool direction, int shipSize)
@@ -147,6 +150,14 @@ namespace Battleship
                                 {
                                     OccupancyBoard[startRow, startColumn + shipSize] = 2;
                                 }
+                                if (startColumn + shipSize < 10 && startRow> 0 )
+                                {
+                                    OccupancyBoard[startRow - 1, startColumn + shipSize] = 2;
+                                }
+                                if (startColumn + shipSize < 10&& startRow < 9)
+                                {
+                                    OccupancyBoard[startRow + 1, startColumn + shipSize] = 2;
+                                }
 
                                 if (startRow > 0 && startColumn + shipSize - 1 < 10)
                                 {
@@ -161,7 +172,7 @@ namespace Battleship
                                 {
                                     OccupancyBoard[startRow + 1, startColumn + shipSize - 1] = 2;
                                 }
-                                if (startRow > 0 && startColumn + shipSize - 1< 10)
+                                if (startRow > 0 && startColumn + shipSize - 1 < 10)
                                 {
                                     OccupancyBoard[startRow - 1, startColumn + shipSize - 1] = 2;
                                 }
@@ -217,7 +228,14 @@ namespace Battleship
                                 {
                                     OccupancyBoard[startRow + shipSize, startColumn] = 2;
                                 }
-                                
+                                if (startColumn>0 && startRow + shipSize < 10)
+                                {
+                                    OccupancyBoard[startRow + shipSize, startColumn - 1] = 2;
+                                }
+                                if (startColumn < 9 && startRow + shipSize < 10)
+                                {
+                                    OccupancyBoard[startRow + shipSize, startColumn + 1] = 2;
+                                }
 
                                 if (startRow + shipSize - 1 < 10 && startColumn > 0)
                                 {
@@ -272,14 +290,15 @@ namespace Battleship
                     //}
                 }
                 
-            }for (int i = 0; i < 10; i++)
+            }
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
                 {
-                    for (int j = 0; j < 10; j++)
-                    {
-                        Console.Write(Board[i, j] + " ");
-                    }
-                    Console.WriteLine("");
+                    Console.Write(Board[i, j] + " ");
                 }
+                Console.WriteLine("");
+            }
         }
     }
 }
