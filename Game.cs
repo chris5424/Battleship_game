@@ -20,285 +20,94 @@ namespace Battleship
             "I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10",
             "J1", "J2", "J3", "J4", "J5", "J6", "J7", "J8", "J9", "J10",
         };
-
-        private List<Ship> ShipsToPlace = new List<Ship>();
-
-        private int[,] Board { get; set; }
-        private int[,] OccupancyBoard { get; set; }
+        //private readonly List<Coordinates> _fields = new();
+        //private readonly List<Ship> _shipsToPlace = new();
 
         public void InitGame()
         {
-            Board = new int[10, 10];
-            OccupancyBoard = new int[10, 10];
-            ShipsToPlace.Add(new Ship { Size = 5, Name = "Carrier" });
-            ShipsToPlace.Add(new Ship { Size = 4, Name = "Battleship" });
-            ShipsToPlace.Add(new Ship { Size = 3, Name = "Cruiser" });
-            ShipsToPlace.Add(new Ship { Size = 3, Name = "Submarine" });
-            ShipsToPlace.Add(new Ship { Size = 2, Name = "Destroyer" });
-           
-            
-            
-        }
+            Player playerOne = new();
+            Player playerTwo = new();
 
-        private bool CheckOccupancy(int startRow, int startColumn, bool direction, int shipSize)
-        {
+            //playerOneBoards.PlaceShipsRandomOnBoard(_shipsToPlace);
+            Console.WriteLine("");
+            //playerTwoBoards.PlaceShipsRandomOnBoard(_shipsToPlace);
 
-            //check occupancy
-            if (direction)
+            Random rnd = new();
+            int whoseTurn = rnd.Next(1, 3);
+            Coordinates shot;
+            int shipIndex;
+
+            //play till one player win
+            while (!(playerOne.Lost || playerTwo.Lost))
             {
-                //endColumn = startColumn + shipSize;
-                for (int i = 0; i < shipSize; i++)
+                if (whoseTurn == 1)
                 {
-                    if (OccupancyBoard[startRow, startColumn + i] > 0)
+                    shot = playerOne.GetShot();
+                    playerOne.PlayerBoards.SaveShot(shot);
+                    shipIndex = playerTwo.PlayerBoards.CheckFire(shot);
+                    if (shipIndex>0)
                     {
-                        Console.WriteLine("Statek na kolizyjnej.");
-                        return true;
-                    }
-                }
-            }
-            else
-            {
-                //endRow = startRow + shipSize;
-                for (int i = 0; i < shipSize; i++)
-                {
-                    if (OccupancyBoard[startRow + i, startColumn] > 0)
-                    {
-                        Console.WriteLine("Statek na kolizyjnej.");
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        public void PlaceShipsRandomOnBoard()
-        {
-            Random rnd = new Random();
-            var occupiedFields = new int[10, 10];
-            int startColumn = -1;
-            int endColumn = -1;
-            int startRow = -1;
-            int endRow = -1;
-            bool direction = false; // 0 - horizontal, 1 - vertical
-
-            foreach (var ship in ShipsToPlace)
-            {
-                int shipSize = ship.Size;
-                bool isPlaced = false;
-
-                while (!isPlaced)
-                {
-                    //draw starting coordinates
-                    startColumn = rnd.Next(0, 10);
-                    startRow = rnd.Next(0, 10);
-                    direction = Convert.ToBoolean(rnd.Next(0, 2));
-
-
-                    //check boundaries
-                    if (direction && (startColumn + shipSize) > 10)
-                    {
-                        Console.WriteLine("Statek wyjdzie poza mapę.");
-                        continue;
-                    }
-                    else if (!direction && startRow + shipSize > 10)
-                    {
-                        Console.WriteLine("Statek wyjdzie poza mapę.");
-                        continue;
-                    }
-
-                    if (CheckOccupancy(startRow, startColumn, direction, shipSize))
-                        continue;
-
-                    //place ship and occupy fields around it
-                    Console.WriteLine("Wszystko git, umieść statek.");
-                    isPlaced = true;
-                    if (direction)
-                    {
-                        endColumn = startColumn + shipSize;
-                        for (int i = 0; i < shipSize; i++)
+                        playerTwo.PlayerShips[shipIndex - 1].ReceivedHits++;
+                        //Console.WriteLine("Trafiony");
+                        if (playerTwo.PlayerShips[shipIndex - 1].ReceivedHits == playerTwo.PlayerShips[shipIndex - 1].Size)
                         {
-                            Board[startRow, startColumn + i] = shipSize;
-                            OccupancyBoard[startRow, startColumn + i] = 1;
-
-                            //make occupied border around ship
-                            if (i == 0)
-                            {
-                                if (startRow > 0)
-                                {
-                                    OccupancyBoard[startRow - 1, startColumn] = 2;
-                                }
-                                if (startColumn > 0)
-                                {
-                                    OccupancyBoard[startRow, startColumn - 1] = 2;
-                                }
-                                if (startColumn > 0 && startRow > 0)
-                                {
-                                    OccupancyBoard[startRow - 1, startColumn - 1] = 2;
-                                }
-                                if (startRow < 9 && startColumn > 0)
-                                {
-                                    OccupancyBoard[startRow + 1, startColumn - 1] = 2;
-                                }
-                                if (startRow < 9)
-                                {
-                                    OccupancyBoard[startRow + 1, startColumn] = 2;
-                                }
-                            }
-                            else if (i == shipSize - 1)
-                            {
-                                if (startColumn + shipSize < 10)
-                                {
-                                    OccupancyBoard[startRow, startColumn + shipSize] = 2;
-                                }
-                                if (startColumn + shipSize < 10 && startRow> 0 )
-                                {
-                                    OccupancyBoard[startRow - 1, startColumn + shipSize] = 2;
-                                }
-                                if (startColumn + shipSize < 10&& startRow < 9)
-                                {
-                                    OccupancyBoard[startRow + 1, startColumn + shipSize] = 2;
-                                }
-
-                                if (startRow > 0 && startColumn + shipSize - 1 < 10)
-                                {
-                                    OccupancyBoard[startRow - 1, startColumn + shipSize - 1] = 2;
-                                }
-                                if (startRow < 9 && startColumn + shipSize - 1 < 10)
-                                {
-                                    OccupancyBoard[startRow + 1, startColumn + shipSize - 1] = 2;
-                                }
-
-                                if (startRow < 9 && startColumn + shipSize - 1 < 10)
-                                {
-                                    OccupancyBoard[startRow + 1, startColumn + shipSize - 1] = 2;
-                                }
-                                if (startRow > 0 && startColumn + shipSize - 1 < 10)
-                                {
-                                    OccupancyBoard[startRow - 1, startColumn + shipSize - 1] = 2;
-                                }
-                            }
-                            else
-                            {
-                                if (startRow > 0)
-                                {
-                                    OccupancyBoard[startRow - 1, startColumn + i] = 2;
-                                }
-                                if (startRow < 9)
-                                {
-                                    OccupancyBoard[startRow + 1, startColumn + i] = 2;
-                                }
-                            }
+                            //Console.WriteLine("Zatopiony\n");
+                            playerTwo.PlayerShips[shipIndex - 1].IsSunk = true; ;
+                            //Console.WriteLine("Tura gracza 2");
+                            whoseTurn = 2;
                         }
                     }
                     else
                     {
-                        endRow = startRow + shipSize;
-                        for (int i = 0; i < shipSize; i++)
+                        //Console.WriteLine("Pudło");
+                        //Console.WriteLine("\nTura gracza 2");
+                        whoseTurn = 2;
+                    }
+                                           
+                    playerTwo.CheckLost();
+                }
+                else
+                {
+                    shot = playerTwo.GetShot();
+                    playerTwo.PlayerBoards.SaveShot(shot);
+                    shipIndex = playerOne.PlayerBoards.CheckFire(shot);
+                    if (shipIndex > 0)
+                    {
+                        //Console.WriteLine(playerTwo.PlayerShips.Count);
+                        playerOne.PlayerShips[shipIndex - 1].ReceivedHits++;
+                        //Console.WriteLine("Trafiony");
+                        if (playerOne.PlayerShips[shipIndex - 1].ReceivedHits == playerOne.PlayerShips[shipIndex - 1].Size)
                         {
-                            Board[startRow + i, startColumn] = shipSize;
-                            OccupancyBoard[startRow + i, startColumn] = 1;
-
-                            //make occupied border around ship
-                            if (i == 0)
-                            {
-                                if (startColumn > 0)
-                                {
-                                    OccupancyBoard[startRow, startColumn - 1] = 2;
-                                }
-                                if (startRow > 0)
-                                {
-                                    OccupancyBoard[startRow - 1, startColumn] = 2;
-                                }
-                                if (startColumn > 0 && startRow > 0)
-                                {
-                                    OccupancyBoard[startRow - 1, startColumn - 1] = 2;
-                                }
-                                if (startColumn < 9 && startRow > 0)
-                                {
-                                    OccupancyBoard[startRow - 1, startColumn + 1] = 2;
-                                }
-                                if (startColumn < 9)
-                                {
-                                    OccupancyBoard[startRow, startColumn + 1] = 2;
-                                }
-                            }
-                            else if (i == shipSize - 1)
-                            {
-                                if (startRow + shipSize < 10)
-                                {
-                                    OccupancyBoard[startRow + shipSize, startColumn] = 2;
-                                }
-                                if (startColumn>0 && startRow + shipSize < 10)
-                                {
-                                    OccupancyBoard[startRow + shipSize, startColumn - 1] = 2;
-                                }
-                                if (startColumn < 9 && startRow + shipSize < 10)
-                                {
-                                    OccupancyBoard[startRow + shipSize, startColumn + 1] = 2;
-                                }
-
-                                if (startRow + shipSize - 1 < 10 && startColumn > 0)
-                                {
-                                    OccupancyBoard[startRow + shipSize - 1, startColumn - 1] = 2;
-                                }
-                                if (startRow + shipSize - 1 < 10 && startColumn < 9)
-                                {
-                                    OccupancyBoard[startRow + shipSize - 1, startColumn + 1] = 2;
-                                }
-
-                                if (startRow + shipSize - 1 < 10 && startColumn < 9)
-                                {
-                                    OccupancyBoard[startRow + shipSize - 1, startColumn + 1] = 2;
-                                }
-                                if (startRow + shipSize - 1 < 10 && startColumn > 0)
-                                {
-                                    OccupancyBoard[startRow + shipSize - 1, startColumn - 1] = 2;
-                                }
-                            }
-                            else
-                            {
-                                if (startColumn > 0)
-                                {
-                                    OccupancyBoard[startRow + i, startColumn - 1] = 2;
-                                }
-
-                                if (startColumn < 9)
-                                {
-                                    OccupancyBoard[startRow + i, startColumn + 1] = 2;
-                                }
-                            }
+                            //Console.WriteLine("Zatopiony\n");
+                            playerOne.PlayerShips[shipIndex -1].IsSunk = true;
+                            //Console.WriteLine("Tura gracza 1");
+                            whoseTurn = 1;
                         }
                     }
-
-                    //show boards
-                    //for (int i = 0; i < 10; i++)
-                    //{
-                    //    for (int j = 0; j < 10; j++)
-                    //    {
-                    //        Console.Write(Board[i, j] + " ");
-                    //    }
-                    //    Console.WriteLine("");
-                    //}
-                    //Console.WriteLine("Occupancy");
-                    //for (int i = 0; i < 10; i++)
-                    //{
-                    //    for (int j = 0; j < 10; j++)
-                    //    {
-                    //        Console.Write(OccupancyBoard[i, j] + " ");
-                    //    }
-                    //    Console.WriteLine("");
-                    //}
+                    else
+                    {
+                        //    Console.WriteLine("Pudło");
+                        //    Console.WriteLine("\nTura gracza 1");
+                        whoseTurn = 1;
+                    }
+                    playerOne.CheckLost();
                 }
                 
             }
-            for (int i = 0; i < 10; i++)
+            //Console.WriteLine("");
+            playerOne.PlayerBoards.PrintBoard();
+            
+            if (playerOne.Lost)
             {
-                for (int j = 0; j < 10; j++)
-                {
-                    Console.Write(Board[i, j] + " ");
-                }
-                Console.WriteLine("");
+                Console.WriteLine("Gra zakończona. Wygrał gracz drugi!");
             }
+            else
+            {
+                Console.WriteLine("Gra zakończona. Wygrał gracz pierwszy!");
+            }
+
+            
         }
+        
     }
 }

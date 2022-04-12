@@ -13,9 +13,9 @@ namespace Battleship
     {
         public static void Main(string[] args)
         {
-            Game game = new Game();
+            Game game = new();
             game.InitGame();
-            game.PlaceShipsRandomOnBoard();
+            //game.PlaceShipsRandomOnBoard();
             //game.PlaceShipsRandomOnBoard();
             //CreateHostBuilder(args).Build().Run();
             //Console.WriteLine("test");
